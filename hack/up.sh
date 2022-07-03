@@ -17,6 +17,7 @@ done
 
 # 1.为member集群注册多个fake-node
 for ((i = 0; i < $CLUSTER_NUM; i++)); do
+    sleep 1
     cluster_name="$CLUSTER_PREFIX"-"$i"
     for ((j = 0; j < 100; j ++)); do
         ready=`kubectl get nodes -owide --context kind-$cluster_name  | grep control-plane | awk '{print$2}'`
