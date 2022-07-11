@@ -44,7 +44,12 @@ spec:
         volumeMounts:
         - mountPath: "/etc/prometheus"
           name: prometheus-config
+        - mountPath: "/etc/prometheus"
+          name: prometheus-rules
       volumes:
       - name: prometheus-config
         configMap:
           name: prometheus-config
+      - name: prometheus-rules
+        configMap:
+          name: prometheus-rules
