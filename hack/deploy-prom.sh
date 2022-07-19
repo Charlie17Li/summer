@@ -6,7 +6,7 @@ source "$REPO_ROOT"/hack/util.sh
 
 KUBECONFIG=${KUBECONFIG:-"$HOME/.kube/karmada.config"}
 KUBECONTEXT=${KUBECONTEXT:-"karmada-apiserver"}
-KARMADACONTEXT=${KUBECONTEXT:-"karmada-host"}
+KARMADACONTEXT=${KARMADACONTEXT:-"karmada-host"}
 
 # 创建ClusterRole 和 SA
 kubectl apply -f prometheus-rbac-setup.yaml --kubeconfig "$KUBECONFIG" --context "$KARMADACONTEXT"
@@ -22,6 +22,9 @@ sed "s/karmada-token/$token/g" prometheus-config-template.yaml > prometheus-conf
 
 # 创建Prom需要的配置
 kubectl apply -f prometheus-config.yaml --kubeconfig "$KUBECONFIG" --context "$KARMADACONTEXT"
+
+# 创建rule
+kubectl apply -f prometheus-rules.yaml --kubeconfig "$KUBECONFIG" --context "$KARMADACONTEXT"
 
 # 部署Prom
 kubectl apply -f prometheus-deployment.yaml --kubeconfig "$KUBECONFIG" --context "$KARMADACONTEXT"

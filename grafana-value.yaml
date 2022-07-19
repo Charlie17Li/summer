@@ -1,0 +1,5 @@
+service:
+  enabled: true
+  type: NodePort
+  nodePort: 31802
+  port: 81

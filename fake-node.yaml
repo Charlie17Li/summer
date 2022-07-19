@@ -255,7 +255,7 @@ spec:
             - name: GENERATE_SERIAL_LENGTH
               value: "1"
             - name: GENERATE_REPLICAS
-              value: "150"
+              value: "5000"
             - name: TAKE_OVER_LABELS_SELECTOR
               value: type=fake-kubelet
             - name: TAKE_OVER_ALL

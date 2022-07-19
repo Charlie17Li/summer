@@ -28,6 +28,14 @@ data:
         target_label: __metrics_path__
         replacement: /api/v1/nodes/${1}/proxy/metrics
     
+    - job_name: 'kube-state-metrics'
+      kubernetes_sd_configs:
+      - role: service
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name]
+        action: keep
+        regex: default;kube-state-metrics
+    
     - job_name: 'kubernetes-apiserver'
       kubernetes_sd_configs:
       - role: endpoints
@@ -48,13 +56,24 @@ data:
       scheme: https
       tls_config:
         insecure_skip_verify: true
-      bearer_token: eyJhbGciOiJSUzI1NiIsImtpZCI6ImhFblpJZy1nem1JU0NIdGpsODB4T1NFMVgxZmcxWDJwRGdmMmo3RjdHbE0ifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6InByb21ldGhldXMtdG9rZW4tcWpxbmIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoicHJvbWV0aGV1cyIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImZhMDNjOGY1LTAzNjMtNGVhZS1hZGQ4LTRkNmQxZWFhMjc5MiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZWZhdWx0OnByb21ldGhldXMifQ.Oc-ftDbW73zpjZX60khhbJcCfPc1rHFCVdXKm5I-KWUiHh3-fDGpqw7Z58nN909_w-iFCLyza_i921MZbqXjk6_xLoKyftk12cLa25oEFwg3PF5Y-kDiwjeqgAPVEAEY2Ny6IvLcH0eTlQuFdXoWlcQa4k4DQLK5Q76s24hBqV1nl93OLmG1DeZbXactSkKSGj6JQM00z58dM-PqlWNH9zMI4TagdJ3lzYtVvr2D4lo4trF-weGc_grW4yNajkvDJA2k9smBDGJBX-WhWoegMo4xraDGquTvc62bhYxyFCacCBPUaGvttIqtjiAsnKJwa-qUxSk-51Vikj55zDxgug
+      bearer_token: eyJhbGciOiJSUzI1NiIsImtpZCI6InpmV3J2cUlYbmFvX1RNcE9tbUFLUFI2eENaN1pYb1ctVGt1dW8wUDZ3QTAifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6InByb21ldGhldXMtdG9rZW4tNnA0Mm4iLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoicHJvbWV0aGV1cyIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjE2YzMwNTJkLWNlNjItNGUxOC1hOGZjLTBiZjQ1OTM2MjNjOCIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZWZhdWx0OnByb21ldGhldXMifQ.Mr4ZTwKSudkRh-EJd0k2gHblC-eLUcYoIqc_oBRr-YHHWEO2m4c3i9NcFe2xw21Py-2KoZmLeBtdrin7wsKlkwi4LCP-fMGTLHhexGo6XmR5s1pxi5CYtNneLmHCAjtwQI_CrNBEC8IQjiVWoPeLg4d3smoOOpbMZBDl3wgiUH9Bf3vScBg6JC2hqhP7GEPlRofPYMrrh5vM4yJosjLKOJ2e2zYjpPZX4UDkf0d6Kq6p2lBNMLdqHhj4gPxp2GPVbO8dsp92QNK5h73F7kzrpwlhxti0P4ZpdH7yGVmPQUFUCb7wvCEkHX-PnC9SBpaW7jwISG4uV-DJCrybZxwCRA
       relabel_configs:
       - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
         action: keep
         regex: karmada-system;karmada-apiserver;karmada-apiserver-kubectl
       - target_label: __address__       # cluster内部可以通过该域名访问连接到service=>apiserver
         replacement: karmada-apiserver.karmada-system.svc:5443
+    
+    - job_name: 'metrics-server'
+      kubernetes_sd_configs:
+      - role: endpoints
+      scheme: https
+      tls_config:
+        insecure_skip_verify: true
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoints_name]
+        action: keep
+        regex: kube-system;metrics-server;metrics-server
 
     # - job_name: 'Karmada-AA'
     #   kubernetes_sd_configs:
@@ -76,37 +95,112 @@ data:
         ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         insecure_skip_verify: true
       # bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-      bearer_token: eyJhbGciOiJSUzI1NiIsImtpZCI6ImhFblpJZy1nem1JU0NIdGpsODB4T1NFMVgxZmcxWDJwRGdmMmo3RjdHbE0ifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6InByb21ldGhldXMtdG9rZW4tcWpxbmIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoicHJvbWV0aGV1cyIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImZhMDNjOGY1LTAzNjMtNGVhZS1hZGQ4LTRkNmQxZWFhMjc5MiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZWZhdWx0OnByb21ldGhldXMifQ.Oc-ftDbW73zpjZX60khhbJcCfPc1rHFCVdXKm5I-KWUiHh3-fDGpqw7Z58nN909_w-iFCLyza_i921MZbqXjk6_xLoKyftk12cLa25oEFwg3PF5Y-kDiwjeqgAPVEAEY2Ny6IvLcH0eTlQuFdXoWlcQa4k4DQLK5Q76s24hBqV1nl93OLmG1DeZbXactSkKSGj6JQM00z58dM-PqlWNH9zMI4TagdJ3lzYtVvr2D4lo4trF-weGc_grW4yNajkvDJA2k9smBDGJBX-WhWoegMo4xraDGquTvc62bhYxyFCacCBPUaGvttIqtjiAsnKJwa-qUxSk-51Vikj55zDxgug
+      bearer_token: eyJhbGciOiJSUzI1NiIsImtpZCI6InpmV3J2cUlYbmFvX1RNcE9tbUFLUFI2eENaN1pYb1ctVGt1dW8wUDZ3QTAifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6InByb21ldGhldXMtdG9rZW4tNnA0Mm4iLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoicHJvbWV0aGV1cyIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjE2YzMwNTJkLWNlNjItNGUxOC1hOGZjLTBiZjQ1OTM2MjNjOCIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZWZhdWx0OnByb21ldGhldXMifQ.Mr4ZTwKSudkRh-EJd0k2gHblC-eLUcYoIqc_oBRr-YHHWEO2m4c3i9NcFe2xw21Py-2KoZmLeBtdrin7wsKlkwi4LCP-fMGTLHhexGo6XmR5s1pxi5CYtNneLmHCAjtwQI_CrNBEC8IQjiVWoPeLg4d3smoOOpbMZBDl3wgiUH9Bf3vScBg6JC2hqhP7GEPlRofPYMrrh5vM4yJosjLKOJ2e2zYjpPZX4UDkf0d6Kq6p2lBNMLdqHhj4gPxp2GPVbO8dsp92QNK5h73F7kzrpwlhxti0P4ZpdH7yGVmPQUFUCb7wvCEkHX-PnC9SBpaW7jwISG4uV-DJCrybZxwCRA
       kubernetes_sd_configs:
       - role: service
       relabel_configs:
       - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_service_label_app]
         action: keep
         regex: karmada-system;karmada-aggregated-apiserver;karmada-aggregated-apiserver
+  
 
-    - job_name: 'kubernetes-endpoints'
+    - job_name: 'kubernetes-cadvisor'
+      scheme: https
       tls_config:
         ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
       bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
       kubernetes_sd_configs:
-      - role: endpoints
+      - role: node
+      relabel_configs:
+      - target_label: __address__
+        replacement: kubernetes.default.svc:443
+      - source_labels: [__meta_kubernetes_node_name]
+        regex: (.+)
+        target_label: __metrics_path__
+        replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
 
-    - job_name: 'kubernetes-ingress'
-      tls_config:
-        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-      kubernetes_sd_configs:
-      - role: ingress
+    # - job_name: kubernetes-nodes-cadvisor
+    #   scrape_interval: 10s
+    #   scrape_timeout: 10s
+    #   scheme: https  # remove if you want to scrape metrics on insecure port
+    #   tls_config:
+    #     ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    #   bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    #   kubernetes_sd_configs:
+    #     - role: node
+    #   relabel_configs:
+    #     - action: labelmap
+    #       regex: __meta_kubernetes_node_label_(.+)
+    #     # Only for Kubernetes ^1.7.3.
+    #     # See: https://github.com/prometheus/prometheus/issues/2916
+    #     - target_label: __address__
+    #       replacement: kubernetes.default.svc:443
+    #     - source_labels: [__meta_kubernetes_node_name]
+    #       regex: (.+)
+    #       target_label: __metrics_path__
+    #       replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+    #   metric_relabel_configs:
+    #     - action: replace
+    #       source_labels: [id]
+    #       regex: '^/machine\.slice/machine-rkt\\x2d([^\\]+)\\.+/([^/]+)\.service$'
+    #       target_label: rkt_container_name
+    #       replacement: '${2}-${1}'
+    #     - action: replace
+    #       source_labels: [id]
+    #       regex: '^/system\.slice/(.+)\.service$'
+    #       target_label: systemd_service_name
+    #       replacement: '${1}'
 
-    - job_name: 'kubernetes-pods'
-      tls_config:
-        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-      kubernetes_sd_configs:
-      - role: pod
+    # - job_name: 'kubernetes-pods'
+    #   kubernetes_sd_configs:
+    #   - role: pod
+    #   relabel_configs:
+    #   - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+    #     action: keep
+    #     regex: true
+    #   - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+    #     action: replace
+    #     target_label: __metrics_path__
+    #     regex: (.+)
+    #   - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+    #     action: replace
+    #     regex: ([^:]+)(?::\d+)?;(\d+)
+    #     replacement: $1:$2
+    #     target_label: __address__
+    #   - action: labelmap
+    #     regex: __meta_kubernetes_pod_label_(.+)
+    #   - source_labels: [__meta_kubernetes_namespace]
+    #     action: replace
+    #     target_label: kubernetes_namespace
+    #   - source_labels: [__meta_kubernetes_pod_name]
+    #     action: replace
+    #     target_label: kubernetes_pod_name
+
+    # - job_name: 'kubernetes-endpoints'
+    #   tls_config:
+    #     ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    #   bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    #   kubernetes_sd_configs:
+    #   - role: endpoints
+
+    # - job_name: 'kubernetes-ingress'
+    #   tls_config:
+    #     ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    #   bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    #   kubernetes_sd_configs:
+    #   - role: ingress
+
+    # - job_name: 'kubernetes-pods'
+    #   tls_config:
+    #     ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    #   bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    #   kubernetes_sd_configs:
+    #   - role: pod
     
     rule_files:
-    - "/etc/prometheus/prometheus-rules.yaml"
+    - "/etc/prometheus/prometheus-rules.yml"
 
 kind: ConfigMap
 metadata:

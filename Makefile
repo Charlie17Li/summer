@@ -1,0 +1,2 @@
+kill:
+	pkill rinetd

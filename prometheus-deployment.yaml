@@ -10,6 +10,7 @@ spec:
     protocol: TCP
     port: 9090
     targetPort: 9090
+    nodePort: 31801 
   selector:
     app: prometheus
   type: NodePort
@@ -44,12 +45,11 @@ spec:
         volumeMounts:
         - mountPath: "/etc/prometheus"
           name: prometheus-config
-        - mountPath: "/etc/prometheus"
-          name: prometheus-rules
       volumes:
       - name: prometheus-config
-        configMap:
-          name: prometheus-config
-      - name: prometheus-rules
-        configMap:
-          name: prometheus-rules
+        projected:
+          sources:
+          - configMap:
+              name: prometheus-config
+          - configMap:
+              name: prometheus-rules

@@ -1,3 +1,6 @@
+#1. 在member集群创建fake-node
+
+cat > fake-node.yaml <<EOF
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -255,7 +258,7 @@ spec:
             - name: GENERATE_SERIAL_LENGTH
               value: "1"
             - name: GENERATE_REPLICAS
-              value: "150"
+              value: "5000"
             - name: TAKE_OVER_LABELS_SELECTOR
               value: type=fake-kubelet
             - name: TAKE_OVER_ALL
@@ -312,3 +315,71 @@ spec:
       serviceAccountName: fake-kubelet
       restartPolicy: Always
 ---
+EOF
+
+# 2. 在控制面创建deploy
+cat > fake-pod.yaml <<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fake-pod
+  namespace: default
+spec:
+  replicas: 150000
+  selector:
+    matchLabels:
+      app: fake-pod
+  template:
+    metadata:
+      labels:
+        app: fake-pod
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: type
+                    operator: In
+                    values:
+                      - fake-kubelet
+      tolerations: # A taints was added to an automatically created Node. You can remove taints of Node or add this tolerations
+        - key: "fake-kubelet/provider"
+          operator: "Exists"
+          effect: "NoSchedule"
+      # nodeName: fake-0 # Or direct scheduling to a fake node
+      containers:
+        - name: fake-pod
+          image: fake
+EOF
+
+# 3.在控制面创建pp
+cat > pp.yaml <<EOF
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata:
+  name: fake-propagation
+spec:
+  resourceSelectors:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: fake-pod
+  placement:
+    clusterAffinity:
+      clusterNames:
+        - member1
+        - member2
+    replicaScheduling:
+      replicaDivisionPreference: Weighted
+      replicaSchedulingType: Divided
+      weightPreference:
+        staticWeightList:
+          - targetCluster:
+              clusterNames:
+                - member1
+            weight: 1
+          - targetCluster:
+              clusterNames:
+                - member2
+            weight: 1
+EOF
