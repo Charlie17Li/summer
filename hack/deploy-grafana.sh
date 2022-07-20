@@ -2,8 +2,14 @@
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
 
-kubectl create ns monitor --kubeconfig=/root/.kube/karmada.config --context=karmada-host
-cat <<EOF | helm upgrade --install grafana grafana/grafana --kubeconfig=/root/.kube/karmada.config --kube-context=karmada-host -n monitor -f -
+KUBECONFIG=${KUBECONFIG:-"$HOME/.kube/config"}
+KUBECONTEXT=${KUBECONTEXT:-"karmada-host"}
+
+KARMADA_CONFIG=${KARMADA_CONFIG:-"$HOME/.kube/karmada-apiserver.config"}
+KARMADA_CONTEXT=${KARMADA_CONTEXT:-"karmada-apiserver"}
+
+kubectl create ns monitor --kubeconfig "$KUBECONFIG" --context "$KUBECONTEXT"
+cat <<EOF | helm upgrade --install grafana grafana/grafana --kubeconfig "$KUBECONFIG" --kube-context "$KUBECONTEXT" -n monitor -f -
 service:
   enabled: true
   type: NodePort
@@ -12,5 +18,5 @@ service:
   port: 80
 EOF
 # 获取登录密码
-kubectl get secret --namespace monitor grafana -o jsonpath="{.data.admin-password}" --kubeconfig=/root/.kube/karmada.config --context=karmada-host | base64 --decode ; echo
+kubectl get secret --namespace monitor grafana -o jsonpath="{.data.admin-password}" --kubeconfig "$KUBECONFIG" --context "$KUBECONTEXT" | base64 --decode ; echo
 
