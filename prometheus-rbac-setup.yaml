@@ -18,6 +18,12 @@ rules:
   verbs: ["get", "list", "watch"]
 - nonResourceURLs: ["/metrics"]
   verbs: ["get"]
+- apiGroups:
+  - 'cluster.karmada.io'
+  resources:
+  - '*'
+  verbs:
+  - '*'
 ---
 apiVersion: v1
 kind: ServiceAccount
