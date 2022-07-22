@@ -10,6 +10,10 @@ KARMADA_CONTEXT=${KARMADA_CONTEXT:-"karmada-apiserver"}
 
 kubectl create ns monitor --kubeconfig "$KUBECONFIG" --context "$KUBECONTEXT"
 cat <<EOF | helm upgrade --install grafana grafana/grafana --kubeconfig "$KUBECONFIG" --kube-context "$KUBECONTEXT" -n monitor -f -
+persistence:
+  enabled: true
+  storageClassName: local-storage
+  accessModes: ReadWriteMany
 service:
   enabled: true
   type: NodePort

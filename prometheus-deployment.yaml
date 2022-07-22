@@ -39,12 +39,23 @@ spec:
         - "/bin/prometheus"
         args:
         - "--config.file=/etc/prometheus/prometheus.yml"
+        - "--storage.tsdb.path=/prom-data"
+        - "--storage.tsdb.retention.time=180d"
         ports:
         - containerPort: 9090
           protocol: TCP
         volumeMounts:
         - mountPath: "/etc/prometheus"
           name: prometheus-config
+        - mountPath: "/prom-data"
+          name: prom-data
+      initContainers: # 目录权限问题https://github.com/prometheus/prometheus/issues/5976
+      - name: prometheus-data-permission-fix
+        image: busybox
+        command: ["/bin/chmod","-R","777", "/data"]
+        volumeMounts:
+        - name: prom-data
+          mountPath: /data
       volumes:
       - name: prometheus-config
         projected:
@@ -53,3 +64,7 @@ spec:
               name: prometheus-config
           - configMap:
               name: prometheus-rules
+      - name: prom-data
+        hostPath:
+          path: /var/lib/prom-data
+          type: DirectoryOrCreate
