@@ -10,3 +10,5 @@
 ```
 ./hack/reset.sh
 ```
+
+kubectl run net --image=quay.io/submariner/nettest:latest -- /bin/bash "-c" "while true; do sleep 1; done"
