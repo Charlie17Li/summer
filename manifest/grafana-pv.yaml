@@ -14,7 +14,7 @@ spec:
   capacity:
     storage: 10Gi   #设置空间大小
   volumeMode: Filesystem
-  accessModes: ["ReadWriteMany"]
+  accessModes: ["ReadWriteOnce"]
   local:
     path: /var/lib/grafana-data
   storageClassName: local-storage

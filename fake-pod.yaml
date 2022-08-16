@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fake-pod
+  name: fake-pod-lql
   namespace: default
 spec:
-  replicas: 10
+  replicas: 20000
   selector:
     matchLabels:
       app: fake-pod

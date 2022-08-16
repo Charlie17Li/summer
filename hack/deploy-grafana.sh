@@ -13,7 +13,6 @@ cat <<EOF | helm upgrade --install grafana grafana/grafana --kubeconfig "$KUBECO
 persistence:
   enabled: true
   storageClassName: local-storage
-  accessModes: ReadWriteMany
 service:
   enabled: true
   type: NodePort
